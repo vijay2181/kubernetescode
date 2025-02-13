@@ -9,7 +9,7 @@ node {
 
     stage('Build image') {
   
-       app = docker.build("vijay2181/argocd-demo")
+       sh 'docker --version'
     }
 
     stage('Test image') {
