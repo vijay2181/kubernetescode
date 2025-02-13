@@ -32,5 +32,15 @@ pipeline {
                 sh "docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}"
             }
         }
+
+        stage('Trigger Second Job') {
+        steps {
+            script {
+                    build job: 'kubernetesmanifest', parameters: [
+                        string(name: 'DOCKERTAG', value: "${env.BUILD_NUMBER}")
+                    ]
+                }
+            }
+         }
     }
 }
