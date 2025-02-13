@@ -13,6 +13,14 @@ pipeline {
             }
         }
 
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
@@ -21,7 +29,7 @@ pipeline {
 
         stage('Push to DockerHub') {
             steps {
-                withDockerRegistry([credentialsId: 'dockerhub', url: '']) {
+                withDockerRegistry([credentialsId: 'dockerhub']) {
                     sh "docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
