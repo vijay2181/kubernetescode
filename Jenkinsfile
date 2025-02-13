@@ -1,34 +1,30 @@
-node {
-    def app
+pipeline {
+    agent any
 
-    stage('Clone repository') {
-      
-
-        checkout scm
+    environment {
+        IMAGE_NAME = 'vijay2181/argocd-demo'
+        GIT_REPO = 'https://github.com/vijay2181/kubernetescode.git'
     }
 
-    stage('Build image') {
-  
-       sh 'docker --version'
-    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: "${GIT_REPO}"
+            }
+        }
 
-    stage('Test image') {
-  
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+            }
+        }
 
-        app.inside {
-            sh 'echo "Tests passed"'
+        stage('Push to DockerHub') {
+            steps {
+                withDockerRegistry([credentialsId: 'dockerhub', url: '']) {
+                    sh "docker push ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                }
+            }
         }
     }
-
-    stage('Push image') {
-        
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BUILD_NUMBER}")
-        }
-    }
-    
-    stage('Trigger ManifestUpdate') {
-                echo "triggering updatemanifestjob"
-                build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
 }
