@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'vijay2181/argocd-demo'
+        IMAGE_NAME = 'vijay4devops/argocd-demo'
         GIT_REPO = 'https://github.com/vijay2181/kubernetescode.git'
     }
 
